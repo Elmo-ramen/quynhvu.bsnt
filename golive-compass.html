@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Go-live Compass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfcfa;--surface:#ffffff;--surface2:#f5f8f4;--ink:#12261b;--muted:#5f7167;--line:#e2e9e2;
+  --brand:#15803d;--brand-d:#0b3d2a;--brand-l:#dcfce7;
+  --accent:#ea580c;--accent-d:#c2410c;--accent-l:#ffedd5;
+  --red:#dc2626;--redbg:#fee2e2;--amber:#b45309;--amberbg:#fef3c7;--green:#15803d;--greenbg:#dcfce7;--orange:#c2410c;--orangebg:#ffedd5;
+  --shadow:0 1px 2px rgba(11,61,42,.05),0 10px 30px rgba(11,61,42,.07);
+  --grad:linear-gradient(90deg,#15803d,#ea580c);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1511;--surface:#13201a;--surface2:#192a22;--ink:#ecf5ef;--muted:#92a89b;--line:#243830;
+    --brand:#4ade80;--brand-d:#052e1a;--brand-l:#14532d;
+    --accent:#fb923c;--accent-d:#fdba74;--accent-l:#431407;
+    --red:#f87171;--redbg:#3b1d1d;--amber:#fbbf24;--amberbg:#3a2e12;--green:#4ade80;--greenbg:#12301d;--orange:#fdba74;--orangebg:#3b1f0e;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  background-image:radial-gradient(circle at 12% -5%,rgba(21,128,61,.14),transparent 38%),radial-gradient(circle at 92% 0,rgba(234,88,12,.13),transparent 34%),radial-gradient(rgba(21,128,61,.12) 1px,transparent 1px);
+  background-size:auto,auto,22px 22px;background-repeat:no-repeat,no-repeat,repeat;background-position:0 0,0 0,0 0}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 80px}
+
+/* floating pill nav */
+.nav{position:sticky;top:12px;z-index:30;margin:12px auto 0;max-width:1180px;padding:0 16px}
+.pill{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:999px;display:flex;align-items:center;gap:6px;padding:7px 8px 7px 16px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:.2px;white-space:nowrap;margin-right:8px}
+.logo i{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;font-style:normal;color:#fff;font-size:15px}
+.tabs{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;padding:8px 13px;cursor:pointer;color:var(--muted);font-weight:600;border-radius:999px;white-space:nowrap;font-size:14px}
+.tab:hover{color:var(--ink);background:var(--surface2)}
+.tab.on{color:#fff;background:var(--brand-d)}
+.tab .c{background:var(--accent);color:#fff;border-radius:99px;padding:0 7px;font-size:11px;margin-left:5px}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap}
+.ib:hover{border-color:var(--brand);color:var(--brand)}
+
+/* hero */
+.hero{text-align:center;padding:54px 0 34px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--brand-d);box-shadow:var(--shadow)}
+.eyebrow:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .eyebrow{color:var(--brand)}}
+.hero h1{font-size:clamp(30px,5.2vw,52px);line-height:1.1;margin:18px auto 12px;max-width:760px;font-weight:800;letter-spacing:-.02em}
+.gt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:620px;margin:0 auto;color:var(--muted);font-size:16px}
+.cta{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.quote{margin-top:16px;font-size:13px;color:var(--muted)}
+.pb{border-radius:999px;padding:11px 22px;font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--surface);font-size:14px}
+.pb.dark{background:var(--brand-d);border-color:var(--brand-d);color:#fff}
+.pb.dark:hover{filter:brightness(1.25)}
+.pb:hover{border-color:var(--brand)}
+
+/* stats band */
+.band{background:linear-gradient(135deg,#0b3d2a,#0f5a37 60%,#7c2d0d);border-radius:26px;padding:6px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;overflow:hidden}
+.stat{padding:18px 20px;color:#fff}
+.stat .n{font-size:32px;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.stat .l{opacity:.85;font-size:13px;font-weight:600}
+.stat .s{opacity:.6;font-size:12px;margin-top:2px}
+.stat.red .n{color:#fdba74}.stat.green .n{color:#86efac}
+
+.panel{display:none;margin-top:30px}.panel.on{display:block}
+.ph{margin:0 0 4px;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.ps{color:var(--muted);margin:0 0 18px}
+
+/* chips, buttons */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.chip.red{background:var(--redbg);color:var(--red);border-color:transparent}
+.chip.amber{background:var(--amberbg);color:var(--amber);border-color:transparent}
+.chip.green{background:var(--greenbg);color:var(--green);border-color:transparent}
+.chip.orange{background:var(--orangebg);color:var(--orange);border-color:transparent}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 14px;border-radius:999px;cursor:pointer;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.pri:hover{filter:brightness(1.1);color:#fff}
+.btn.org{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.org:hover{filter:brightness(1.08);color:#fff}
+.btn.sm{padding:4px 11px;font-size:12px}
+.btn.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* today */
+.group h3{margin:22px 0 8px;font-size:12px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.group h3:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.group.g3 h3:before{background:var(--accent)}.group.g2 h3:before{background:#f59e0b}.group.g1 h3:before{background:var(--brand)}
+.item{display:grid;grid-template-columns:5px 1fr auto;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:13px 16px;margin-bottom:9px;box-shadow:var(--shadow);align-items:center}
+.item .bar{align-self:stretch;border-radius:4px;background:var(--line)}
+.g3 .bar{background:var(--accent)}.g2 .bar{background:#f59e0b}.g1 .bar{background:var(--brand)}
+.item .t{font-weight:700}
+.item .d{color:var(--muted);font-size:13px;margin-top:2px}
+.item .tip{margin-top:7px;font-size:13px;background:var(--surface2);border-left:3px solid var(--brand);padding:6px 11px;border-radius:0 10px 10px 0}
+.empty{text-align:center;padding:40px 16px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:20px}
+
+/* deal cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:11px}
+.card .hd{display:flex;gap:10px;align-items:flex-start}
+.card .nm{font-weight:700;line-height:1.3}
+.card .meta{font-size:12px;color:var(--muted)}
+.sys{font-variant-numeric:tabular-nums;background:var(--orangebg);color:var(--orange);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.tl{position:relative;height:10px;border-radius:99px;background:linear-gradient(90deg,var(--greenbg) 0 50%,var(--orangebg) 50% 100%);margin:8px 0 2px}
+.tl .fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--grad);opacity:.9}
+.tl .dl{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.5}
+.tl .now{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:var(--accent);transform:translateX(-2px)}
+.tlab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.sets{display:flex;flex-direction:column;gap:6px}
+.set{display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:12px;padding:7px 11px;font-size:13px}
+.set b{min-width:78px}
+.pbar{flex:1;height:7px;background:var(--line);border-radius:99px;overflow:hidden;min-width:40px}
+.pbar i{display:block;height:100%;border-radius:99px;background:var(--brand)}
+.pbar.red i{background:var(--red)}.pbar.amber i{background:var(--accent)}.pbar.green i{background:var(--green)}
+.set .pc{font-weight:700;font-variant-numeric:tabular-nums;min-width:48px;text-align:right}
+.foot{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:auto}
+.lesson{font-size:12.5px;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(6,20,13,.6);display:none;z-index:50;padding:16px;overflow:auto}
+.ov.on{display:block}
+.modal{background:var(--surface);max-width:900px;margin:20px auto;border-radius:28px;box-shadow:0 24px 70px rgba(0,0,0,.4);overflow:hidden}
+.modal header{padding:16px 22px;background:linear-gradient(135deg,#0b3d2a,#0f5a37 65%,#9a3412);color:#fff;display:flex;align-items:center;gap:10px}
+.modal header h2{margin:0;font-size:18px;flex:1}
+.hx{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:999px;width:32px;height:32px;cursor:pointer}
+.mtabs{display:flex;gap:6px;padding:10px 22px 0;border-bottom:1px solid var(--line)}
+.mt{background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;font-weight:700;color:var(--muted);cursor:pointer}
+.mt.on{color:var(--brand);border-color:var(--accent)}
+.mbody{padding:18px 22px;display:grid;gap:18px}
+.mfoot{padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;background:var(--surface2)}
+.sec h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+label.fl{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);font-weight:600}
+.in{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 11px;width:100%;color:var(--ink)}
+.in:focus{outline:2px solid var(--brand);outline-offset:0;border-color:transparent}
+textarea.in{min-height:64px;resize:vertical}
+.pv{background:var(--surface2);border:1px solid var(--line);border-radius:18px;padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pv .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.pv .v{font-weight:700;font-size:16px}
+.setbox{border:1px solid var(--line);border-radius:18px;padding:12px;background:var(--surface2);display:grid;gap:10px}
+.logs{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.logs .chip button{border:0;background:none;cursor:pointer;color:inherit;padding:0 0 0 4px}
+.note{font-size:12.5px;color:var(--muted)}
+.warn{font-size:12.5px;background:var(--amberbg);color:var(--amber);padding:8px 11px;border-radius:12px}
+.chk{display:grid;gap:6px}
+.chk div{display:flex;gap:8px;align-items:center;font-size:14px}
+.chk .ok{color:var(--green)}.chk .no{color:var(--accent)}
+.meter{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--grad);border-radius:99px}
+.rowc{border:1px solid var(--line);background:var(--surface2);border-radius:16px;padding:10px;display:grid;gap:8px;position:relative}
+.rowc .x{position:absolute;right:8px;top:6px}
+.cnt{font-weight:800;font-variant-numeric:tabular-nums}
+
+/* boxes */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.two{grid-template-columns:1fr}.item{grid-template-columns:5px 1fr}.item .act{grid-column:2}.logo span{display:none}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.box h3{margin:0 0 6px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th,table.t td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.pol{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.pol .box ul{margin:6px 0 0;padding-left:18px}.pol li{margin:3px 0}
+
+/* guide */
+.steps{display:grid;gap:14px;counter-reset:s}
+.step{display:grid;grid-template-columns:48px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.step .no{width:44px;height:44px;border-radius:14px;background:var(--grad);color:#fff;font-weight:800;display:grid;place-items:center;font-size:18px}
+.step h3{margin:0 0 2px;font-size:17px}
+.step .when{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.7px}
+.step ul{margin:8px 0;padding-left:18px}.step li{margin:3px 0}
+.step .tool{background:var(--surface2);border-left:3px solid var(--brand);border-radius:0 12px 12px 0;padding:7px 12px;font-size:13px;margin-top:8px}
+.step .btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+
+/* glossary */
+.gl{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.gi{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
+.gi b{color:var(--brand)}.gi .full{font-size:12px;color:var(--accent);font-weight:700}
+.gi p{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+.gcat{grid-column:1/-1;margin:10px 0 0;font-size:12px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:var(--brand-d);color:#fff;padding:10px 18px;border-radius:999px;opacity:0;transition:.25s;z-index:99;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<div class="nav"><div class="pill">
+  <div class="logo"><i>🧭</i><span>Go-live Compass</span></div>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-t="today">🔥 Hôm nay</button>
+    <button class="tab" data-t="deals">📁 Deals</button>
+    <button class="tab" data-t="active">📊 Nhập Active</button>
+    <button class="tab" data-t="guide">🧭 Hướng dẫn</button>
+    <button class="tab" data-t="glossary">📚 Từ điển</button>
+    <button class="tab" data-t="policy">📖 Chính sách</button>
+  </div>
+  <button class="ib" id="bExport" title="Tải file sao lưu">⬇ Sao lưu</button>
+  <button class="ib" id="bImport" title="Khôi phục từ file sao lưu">⬆ Khôi phục</button>
+  <input type="file" id="fImport" accept=".json" hidden>
+</div></div>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="eyebrow">CS · Go-live Compass</span>
+    <h1 id="greet">Chào Quỳnh</h1>
+    <p id="sub"></p>
+    <div class="cta"><button class="pb dark" id="bNew">＋ Nhận deal mới</button><button class="pb" data-goto="guide">Xem hướng dẫn từng bước →</button></div>
+    <div class="quote" id="quote"></div>
+  </div>
+
+  <div class="band" id="stats"></div>
+
+  <section class="panel on" id="p-today"></section>
+  <section class="panel" id="p-deals"></section>
+  <section class="panel" id="p-active"></section>
+  <section class="panel" id="p-guide"></section>
+  <section class="panel" id="p-glossary"></section>
+  <section class="panel" id="p-policy"></section>
+</div>
+
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ helpers ============ */
+const $=s=>document.querySelector(s);
+const DAY=864e5;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pd=s=>s?new Date(s+'T12:00:00'):null;
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addD=(d,n)=>new Date(d.getTime()+n*DAY);
+const addM=(d,n)=>{const x=new Date(d);x.setMonth(x.getMonth()+n);return x};
+const diff=(a,b)=>Math.round((a-b)/DAY);
+const fmt=d=>d?String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear():'—';
+const fmtS=d=>d?String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0'):'—';
+const TODAY=(()=>{const t=new Date();t.setHours(12,0,0,0);return t})();
+const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?0:n};
+const uid=()=>'d'+Math.random().toString(36).slice(2,9);
+const getP=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2800)}
+
+/* ============ data ============ */
+const KEY='golive-compass-v1';
+const SETS=['Work Ops','People Ops','Business Ops','Finance Ops','Other'];
+const CSP_ST=[['none','Chưa làm'],['survey','Đã khảo sát KH'],['draft','Đã viết nháp CSP'],['sent','Đã duyệt & gửi KH']];
+
+function mkSet(name,o={}){return Object.assign({name:name||'Work Ops',apps:'',value:'',users:'',plan:'',golive:'',output:0,log:[]},o)}
+function mkCsp(){return {ctx:'',goals:[],team:[],phases:[],catalog:[],sessions:[]}}
+function mkDeal(o={}){return Object.assign({id:uid(),sys:'',name:'',contract:'',start:'',startEst:false,nonSoft:false,ext:0,csp:'none',owner:'quynhvu',sets:[mkSet()],cause:'',lesson:'',notes:'',cspd:mkCsp()},o)}
+
+function seed(){
+  const L=(p)=>[{d:'2026-10-05',p}];
+  const S=(apps,p)=>mkSet('Work Ops',{apps,log:L(p)});
+  return [
+    mkDeal({sys:'12061',name:'Công ty CP Quảng cáo và Thương mại Kim Quang',contract:'180826-01/863/HD-BASE',start:'2026-08-18',startEst:true,sets:[S('Wework',10.9)],cause:'Triển khai chưa gãy gọn',lesson:'Luôn phải có mục tiêu cho triển khai, kể cả ở 1st call / 1st meeting: KH sẽ nhận được giá trị gì?'}),
+    mkDeal({sys:'12066',name:'Công ty TNHH ĐT TM DV và XNK Yên Thành',contract:'17082026-01/1396/HD-BASE',start:'2026-08-17',startEst:true,sets:[S('Workflow',1.1)],cause:'KH chưa sẵn sàng để triển khai'}),
+    mkDeal({sys:'12088',name:'Công ty TNHH Tiến Lợi tỉnh Điện Biên',contract:'260826-1/1442/HD-BASE',start:'2026-08-26',startEst:true,sets:[S('Workflow',86.3)]}),
+    mkDeal({sys:'12104',name:'Trường Tiểu học và THCS 915 Gia Sàng',contract:'260826-1/1037/HD-BASE',start:'2026-08-26',startEst:true,sets:[S('Wework',11.2)],cause:'KH có hệ thống công việc nhiều phân đoạn và delay'}),
+    mkDeal({sys:'12118',name:'Công ty TNHH Duyến Toản',contract:'110926-01/863/HD-BASE',start:'2026-09-11',startEst:true,sets:[S('Wework',22.1)],cause:'KH chưa …'}),
+    mkDeal({sys:'12155',name:'Hộ kinh doanh Vuông Tròn Pastry',contract:'220926-01/805/HD-BASE',start:'2026-09-22',startEst:true,sets:[S('Wework',33.9)],lesson:'Note vào trong sales / file CRM'}),
+    mkDeal({sys:'12181',name:'Công ty TNHH MTV Xây dựng và Thương mại Châu Long',contract:'29092026-01/1396/HD-BASE',start:'2026-09-29',startEst:true,sets:[S('Wework',67.7)]}),
+    mkDeal({sys:'12193',name:'Nguyễn Trung Kiên',contract:'081026/119/HD-BASE',start:'2026-10-08',startEst:true,sets:[S('Wework',27.4)]}),
+  ].map(d=>(d.csp='sent',d)); // deal cũ: giả định CSP đã xong, chỉnh lại trong từng deal nếu chưa
+}
+let DB;
+try{DB=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){DB=null}
+if(!DB||!Array.isArray(DB.deals)){DB={deals:seed(),ver:2,pic:'Vũ Thúy Quỳnh'};save()}
+DB.pic=DB.pic||'Vũ Thúy Quỳnh';
+DB.deals.forEach(d=>{d.cspd=Object.assign(mkCsp(),d.cspd||{})});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+
+/* ============ policy engine ============ */
+function seg(total){
+  if(!total)return null;
+  if(total<=20)return {k:'SA',base:21,per:0};
+  if(total<=60)return {k:'MA',base:30,per:15};
+  if(total<=100)return {k:'MA',base:35,per:15};
+  if(total<=200)return {k:'MA',base:45,per:20};
+  if(total<=500)return {k:'KA',base:60,per:30};
+  return {k:'KA',base:75,per:30};
+}
+const TIER_TBL={'Work Ops':[2,1,1,3,3],'People Ops':[2,2,2,2,3],'Business Ops':[1,2,3,3,3]};
+const BANDS={1:[[60,100],[30,60],[10,40]],2:[[50,100],[30,80],[10,50]],3:[[30,100],[15,80],[5,40]]};
+const TIERNAME={1:'Daily Core',2:'Routine',3:'On-Demand',4:'Output Driven'};
+function tierOf(name,users){
+  const u=num(users)||50; const i=u<=15?0:u<=200?1:u<=500?2:u<=1000?3:4;
+  return TIER_TBL[name]?TIER_TBL[name][i]:4;
+}
+function uScore(t,p){
+  if(t===4)return null;
+  for(const [thr,pts] of BANDS[t]) if(p>thr)return pts;
+  return 0;
+}
+function need(t,o){
+  if(t===4)return null;
+  const b=[...BANDS[t]].reverse();
+  for(const [thr,pts] of b) if(.7*pts+.3*o>=50)return {thr,pts};
+  return false;
+}
+function measureStart(g){
+  if(!g)return null;
+  return g.getDate()<=10?g:new Date(g.getFullYear(),g.getMonth()+1,1,12);
+}
+function lastLog(s){return [...(s.log||[])].sort((a,b)=>a.d<b.d?1:-1)[0]}
+
+function calc(d){
+  const start=pd(d.start);
+  const total=d.sets.reduce((a,s)=>a+num(s.value),0);
+  const sg=seg(total);
+  const n=d.sets.length;
+  let base=null,extMax=null,ext=0,deadline=null,limit=null;
+  if(sg){
+    base=sg.base+(n>=2?(n-1)*sg.per:0)+(d.nonSoft?15:0);
+    extMax=base; ext=Math.min(Math.max(0,num(d.ext)),extMax);
+    if(start){deadline=addD(start,base+ext);limit=addD(start,base*2)}
+  }
+  const sets=d.sets.map(s=>{
+    const live=!!s.golive, g=pd(s.golive);
+    const ll=lastLog(s), p=ll?num(ll.p):null;
+    const t=tierOf(s.name,s.users);
+    const o=num(s.output);
+    const u=(p==null)?null:uScore(t,p);
+    const chs=t===4?o:(u==null?null:.7*u+.3*o);
+    const nd=t===4?null:need(t,o);
+    return {s,live,g,ll,p,t,u,o,chs,nd,ms:measureStart(g)};
+  });
+  const liveSets=sets.filter(x=>x.live&&x.chs!=null);
+  const chs=liveSets.length?liveSets.reduce((a,x)=>a+x.chs,0)/liveSets.length:null;
+  const allLive=sets.length&&sets.every(x=>x.live);
+  return {start,total,sg,base,extMax,ext,deadline,limit,sets,chs,allLive,n};
+}
+
+/* ============ CSP completeness ============ */
+const PH=/^\[.*\]$/;
+const real=v=>{v=String(v==null?'':v).trim();return (!v||PH.test(v)||/^\[Ví dụ\]/i.test(v))?'':v};
+function cspCheck(d){
+  const c=d.cspd;
+  const goals=c.goals.filter(g=>real(g.t)&&real(g.k));
+  const side=(s)=>c.team.filter(t=>t.side&&t.side.toLowerCase().startsWith(s)&&real(t.name));
+  const phases=c.phases.filter(p=>real(p.name));
+  const cat=c.catalog.filter(r=>real(r.dept)&&real(r.items));
+  const ses=c.sessions.filter(s=>real(s.session||s.n));
+  const emptyPh=phases.map((p,i)=>({p,i})).filter(({i})=>!ses.some(s=>(+s.ph||0)===i)).map(({i})=>i+1);
+  const items=[
+    {k:'Bối cảnh & lý do triển khai',ok:real(c.ctx).length>=20,hint:'Viết 1–2 câu: vì sao KH cần Base ở thời điểm này'},
+    {k:'Mục tiêu dự án (kèm chỉ số đo lường)',ok:goals.length>=1,hint:goals.length?'':'Cần ít nhất 1 mục tiêu có cả "Mục tiêu" và "Kết quả kỳ vọng"'},
+    {k:'Ban dự án hai bên (≥1 KH và ≥1 Base)',ok:side('kh').length>=1&&side('base').length>=1,hint:'Thiếu '+(side('kh').length?'':'đầu mối Khách hàng ')+(side('base').length?'':'đầu mối Base')},
+    {k:'Lộ trình tổng quan theo chặng',ok:phases.length>=1,hint:'Nhập tên chặng + thời gian dự kiến'},
+    {k:'Danh mục số hóa (bóc tách nghiệp vụ)',ok:cat.length>=1,hint:'Cần ít nhất 1 dòng có phòng ban + quy trình số hóa'},
+    {k:'Kế hoạch làm việc (các buổi)',ok:ses.length>=1&&emptyPh.length===0,hint:ses.length?`Chặng ${emptyPh.join(', ')} chưa có buổi nào`:'Chưa có buổi làm việc nào'},
+  ];
+  const done=items.filter(i=>i.ok).length;
+  return {items,done,total:items.length,pct:Math.round(done/items.length*100),missing:items.filter(i=>!i.ok)};
+}
+
+/* ============ actions ("Hôm nay") ============ */
+function actions(){
+  const out=[];
+  for(const d of DB.deals){
+    const c=calc(d);
+    const add=(sev,title,why,tip)=>out.push({sev,d,title,why,tip});
+    if(!d.start)add(2,'Chưa có ngày nhận deal','Không có ngày bắt đầu thì không tính được hạn go-live & hạn CSP.','Mở deal, nhập ngày nhận deal (ngày ký HĐ / ngày nhận bàn giao).');
+    else if(d.startEst)add(1,'Ngày nhận deal đang là ước tính từ mã hợp đồng','Xác nhận lại ngày thật BC bàn giao để mốc đúng.','Mở deal → sửa ngày → hệ thống tự bỏ cờ ước tính.');
+    if(!c.sg)add(1,'Thiếu giá trị HĐ phần mềm','Cần giá trị từng bộ giải pháp để tính phân khúc (SA/MA/KA) và TTGL.','Nhập "Giá trị (triệu)" cho từng bộ trong deal.');
+    // CSP
+    if(d.start&&d.csp!=='sent'){
+      const due=addD(c.start,14),left=diff(due,TODAY),ck=cspCheck(d);
+      const sa=c.sg&&c.sg.k==='SA';
+      const stTxt=CSP_ST.find(x=>x[0]===d.csp)[1];
+      const miss=ck.missing.map(m=>m.k).join('; ');
+      let tip;
+      if(ck.missing.length)tip=(d.csp==='none'?'Đặt lịch khảo sát với PIC ngay (CSP chỉ viết được sau khảo sát). ':'')+'Còn thiếu: '+miss+'. Mở deal → tab CSP để dán/nhập tiếp.';
+      else tip='Nội dung CSP đã đủ → xuất CSP.xlsx, trao đổi với BC rồi gửi KH, sau đó đổi trạng thái "Đã duyệt & gửi KH".';
+      const why=`Nội dung CSP: ${ck.done}/${ck.total} mục · trạng thái: ${stTxt}. Quy định: CSP trong 14 ngày sau nhận deal.`;
+      if(sa)add(1,'CSP (SA: không bắt buộc)','Khách SA do Solution Support giữ CSP; vẫn nên có mục tiêu Y1 ngắn.',tip);
+      else{
+        const sev=ck.missing.length?(left<=3?3:left<=7?2:1):(left<0?3:left<=3?2:1);
+        const late=left<0?`quá hạn ${-left} ngày`:`hạn ${fmtS(due)}, còn ${left} ngày`;
+        add(sev,ck.missing.length?`CSP ${late} — mới nhập ${ck.done}/${ck.total} mục`:`CSP đã đủ nội dung nhưng chưa duyệt & gửi KH (${late})`,why,tip);
+      }
+    }
+    // go-live pending
+    const pend=c.sets.filter(x=>!x.live);
+    if(pend.length&&c.deadline){
+      const left=diff(c.deadline,TODAY), over=TODAY>c.limit;
+      const names=pend.map(x=>x.s.name+(x.s.apps?` (${x.s.apps})`:'')).join(', ');
+      const room=c.extMax-c.ext;
+      const ms=measureStart(TODAY);
+      const mtip=TODAY.getDate()<=10?`Nếu go-live hôm nay: đo active ngay từ ${fmtS(TODAY)} tới cuối tháng.`:`Nếu go-live hôm nay (sau ngày 10): kỳ đo active bắt đầu 01/${String(ms.getMonth()+1).padStart(2,'0')} → còn thời gian "làm nóng" user trước khi bị đo.`;
+      if(over)add(3,`Quá 200% định mức: ${names}`,`Doanh thu bộ này sẽ vào CR1 các kỳ sau cho tới khi go-live. Hạn gốc ${fmt(c.deadline)}.`,'Ưu tiên cao nhất: chốt go-live hoặc báo lead về hướng xử lý.');
+      else if(left<0)add(3,`Quá hạn go-live ${-left} ngày: ${names}`,`Hạn ${fmt(c.deadline)}. Còn tối đa ${room} ngày gia hạn lũy kế; mốc 200% là ${fmt(c.limit)}.`,room>0?'Tạo đề xuất gia hạn trên hệ thống nếu có lý do khách quan (CR bộ này sẽ được tách khỏi kỳ). '+mtip:'Đã hết hạn mức gia hạn → phải kéo go-live. '+mtip);
+      else if(left<=14)add(left<=7?3:2,`Còn ${left} ngày tới hạn go-live: ${names}`,`Hạn ${fmt(c.deadline)}. Kỳ CR: tháng ${c.deadline.getMonth()+1}/${c.deadline.getFullYear()}.`,(left<=7&&room>0?'Nếu KH chưa sẵn sàng, tạo đề xuất gia hạn TRƯỚC hạn để CR không bị kéo xuống. ':'')+mtip);
+      else add(1,`Chưa go-live: ${names}`,`Hạn ${fmt(c.deadline)} (còn ${left} ngày). Tiến độ thời gian: ${Math.round((TODAY-c.start)/(c.deadline-c.start)*100)}%.`,'Mốc giữa chặng: tới khoảng 50% thời gian phải đào tạo xong user chính & có job thật đầu tiên.');
+    }
+    // live sets
+    for(const x of c.sets.filter(x=>x.live)){
+      const nm=x.s.name;
+      if(x.p==null)add(2,`${nm}: chưa có số Active`,'Lấy số từ Power BI để theo dõi sức khỏe.','Vào tab "Nhập Active" dán số theo System ID.');
+      else{
+        const age=diff(TODAY,pd(x.ll.d));
+        if(age>14)add(2,`${nm}: số Active đã cũ ${age} ngày`,`Gần nhất ${x.p}% ngày ${fmt(pd(x.ll.d))}.`,'Cập nhật lại từ Power BI.');
+        if(x.chs!=null&&x.chs<50){
+          let tip;
+          if(x.t===4)tip='Bộ Output-driven: điểm = % Output hoàn thành. Chốt thêm/hoàn thành các mục Output trong CSP.';
+          else if(x.nd===false)tip='Dù Active cao cũng chưa đủ 50 vì Output thấp → nâng % Output trong CSP.';
+          else tip=`Cần Active > ${x.nd.thr}% (hiện ${x.p}%)`+(x.o<100?` — hoặc nâng Output (đang ${x.o}%) để hạ ngưỡng cần thiết.`:'.');
+          add(3,`${nm}: CHS_CS ước tính ${Math.round(x.chs)} < 50`,`Active ${x.p}% (Tier ${x.t}: ${TIERNAME[x.t]}), Output ${x.o}%. Dưới 50 là deal không được tính "thành công" cho SRR/commission.`,tip);
+        }
+      }
+      if(x.ms&&x.ms>TODAY)add(1,`${nm}: kỳ đo Active bắt đầu ${fmt(x.ms)}`,'Trước ngày này số Active chưa bị tính vào CHS.','Dùng khoảng thời gian này để ép user login hằng ngày.');
+      if(x.g){
+        for(const [m,lab] of [[1,'SRR_1'],[4,'SRR_4']]){
+          const dt=addM(x.g,m),l=diff(dt,TODAY);
+          if(l>=-3&&l<=14)add(l<=5?3:2,`${nm}: mốc ${lab} ${l<0?'vừa qua':'sắp tới'} (${fmt(dt)})`,'Cuối tháng đó CHS_CS_T phải ≥ 50 để deal tính là go-live thành công.','Kiểm tra Active + Output ngay tuần này.');
+        }
+        const mo=diff(TODAY,x.g)/30;
+        if(mo>=5&&mo<=10)add(1,`${nm}: đang trong giai đoạn "The Gap" (tháng 6–10)`,'Dễ chững lại ở First Value.','Đặt QBR / chủ động đề xuất use-case Y2.');
+      }
+    }
+  }
+  return out.sort((a,b)=>b.sev-a.sev);
+}
+
+/* ============ render ============ */
+const QUOTES=['Mỗi deal được kéo go-live đúng hạn là một khách hàng ở lại.','Việc khó nhất là buổi đầu: hỏi KH "bạn muốn nhận được gì?".','Nhỏ mà chắc: một job thật trong 7 ngày đầu quý hơn một buổi training dài.','Đừng đợi KH sẵn sàng — hãy giúp KH sẵn sàng.','Hạn gia hạn xin trước hạn, đừng xin sau.'];
+function render(){
+  const acts=actions();
+  const urgent=acts.filter(a=>a.sev===3).length;
+  const first=(DB.pic||'quynhvu').split(' ').slice(-1)[0];
+  $('#greet').innerHTML=`Chào ${esc(first)}, kéo deal <span class="gt">go-live đúng hạn</span> nào!`;
+  const cs=DB.deals.map(calc);
+  const pend=cs.reduce((a,c)=>a+c.sets.filter(x=>!x.live).length,0);
+  $('#sub').textContent=`Hôm nay ${fmt(TODAY)}. `+(urgent?`Có ${urgent} việc cần xử lý ngay — làm từ trên xuống dưới là ổn.`:'Chưa có gì cháy. Dành thời gian chủ động kéo các deal sắp tới hạn.');
+  $('#quote').textContent='“'+QUOTES[TODAY.getDate()%QUOTES.length]+'”';
+
+  let due=0,done=0;
+  DB.deals.forEach((d,i)=>{const c=cs[i];if(!c.deadline)return;c.sets.forEach(x=>{
+    const dl=c.deadline;if(dl.getMonth()===TODAY.getMonth()&&dl.getFullYear()===TODAY.getFullYear()){
+      const v=num(x.s.value);due+=v;if(x.live&&x.g<=new Date(dl.getFullYear(),dl.getMonth()+1,0,23))done+=v}})});
+  const live=cs.filter(c=>c.chs!=null);
+  const healthy=live.filter(c=>c.chs>=50).length;
+  const cspOpen=DB.deals.filter(d=>d.csp!=='sent'&&d.start).length;
+  $('#stats').innerHTML=`
+   <div class="stat"><div class="n">${DB.deals.length}</div><div class="l">Deal đang theo dõi</div><div class="s">${pend} bộ chưa go-live</div></div>
+   <div class="stat ${urgent?'red':'green'}"><div class="n">${urgent}</div><div class="l">Việc gấp</div><div class="s">${acts.filter(a=>a.sev===2).length} việc tuần này</div></div>
+   <div class="stat"><div class="n">${cspOpen}</div><div class="l">CSP chưa gửi KH</div><div class="s">hạn = nhận deal + 14 ngày</div></div>
+   <div class="stat ${live.length&&healthy<live.length?'red':'green'}"><div class="n">${live.length?healthy+'/'+live.length:'—'}</div><div class="l">Deal CHS_CS ≥ 50</div><div class="s">ước tính theo Active + Output</div></div>
+   <div class="stat"><div class="n">${due?Math.round(done/due*100)+'%':'—'}</div><div class="l">CR tháng ${TODAY.getMonth()+1}</div><div class="s">${due?done+'/'+due+' triệu đến hạn':'chưa có bộ nào đến hạn'}</div></div>`;
+
+  const g=[[3,'Làm ngay'],[2,'Trong tuần này'],[1,'Theo dõi & chuẩn bị']];
+  $('#p-today').innerHTML=`<h2 class="ph">Hôm nay làm gì?</h2><p class="ps">Danh sách tự sinh từ ngày nhận deal, hạn go-live, trạng thái CSP và số Active.</p>`+(acts.length?g.map(([s,lab])=>{
+    const it=acts.filter(a=>a.sev===s);if(!it.length)return'';
+    return `<div class="group g${s}"><h3>${lab} · ${it.length}</h3>${it.map(a=>`
+     <div class="item"><div class="bar"></div><div>
+       <div class="t">${esc(a.title)} <span class="sys">${esc(a.d.sys||'—')}</span></div>
+       <div class="d">${esc(a.d.name||'(chưa đặt tên)')} — ${esc(a.why)}</div>
+       ${a.tip?`<div class="tip">💡 ${esc(a.tip)}</div>`:''}
+     </div><div class="act"><button class="btn sm" data-open="${a.d.id}">Mở deal</button></div></div>`).join('')}</div>`}).join(''):
+    `<div class="empty">🎉 Chưa có việc nào. Thêm deal mới bằng nút "＋ Nhận deal mới".</div>`);
+
+  $('#p-deals').innerHTML=`<h2 class="ph">Danh sách deal</h2><p class="ps">Thanh tiến độ: vạch đen là hạn go-live, đầu bên phải là mốc 200% định mức.</p>`+(DB.deals.length?`<div class="grid">${DB.deals.map((d,i)=>card(d,cs[i])).join('')}</div>`:`<div class="empty">Chưa có deal nào.</div>`);
+  renderActive();renderGuide();renderGlossary();renderPolicy();
+}
+function pcls(x){return x.chs==null?'':x.chs>=50?'green':x.chs>=30?'amber':'red'}
+function card(d,c){
+  let tl='';
+  if(c.deadline&&!c.allLive){
+    const span=c.limit-c.start;
+    const now=Math.max(0,Math.min(1,(TODAY-c.start)/span));
+    const dl=(c.deadline-c.start)/span;
+    tl=`<div><div class="tl"><div class="fill" style="width:${now*100}%"></div><div class="dl" style="left:${dl*100}%"></div><div class="now" style="left:${now*100}%"></div></div>
+    <div class="tlab"><span>Nhận ${fmtS(c.start)}</span><span>Hạn go-live ${fmtS(c.deadline)}</span><span>200%: ${fmtS(c.limit)}</span></div></div>`;
+  }else if(!c.deadline)tl=`<div class="warn">Thiếu ${!d.start?'ngày nhận deal':'giá trị HĐ'} để tính hạn go-live.</div>`;
+  const sets=c.sets.map(x=>{
+    const p=x.p;
+    return `<div class="set"><b>${esc(x.s.name)}</b><span class="note">${esc(x.s.apps)}</span>
+      <div class="pbar ${pcls(x)}"><i style="width:${Math.min(100,p||0)}%"></i></div>
+      <span class="pc">${p==null?'—':p+'%'}</span>
+      ${x.live?`<span class="chip green">Live ${fmtS(x.g)}</span>`:`<span class="chip amber">Chưa live</span>`}</div>`}).join('');
+  let risk='<span class="chip green">Ổn</span>';
+  const a=actions().filter(z=>z.d.id===d.id);
+  if(a.some(z=>z.sev===3))risk='<span class="chip red">Rủi ro cao</span>';else if(a.some(z=>z.sev===2))risk='<span class="chip amber">Cần chú ý</span>';
+  const ck=cspCheck(d);
+  const cspSt=CSP_ST.find(x=>x[0]===d.csp)[1];
+  return `<div class="card">
+    <div class="hd"><div style="flex:1"><div class="nm">${esc(d.name||'(chưa đặt tên)')}</div>
+      <div class="meta">${esc(d.contract)}${c.sg?` · ${c.sg.k}`:''}${c.base?` · TTGL ${c.base}${c.ext?'+'+c.ext:''}d`:''}</div></div>
+      <span class="sys">${esc(d.sys||'—')}</span></div>
+    ${tl}
+    <div class="sets">${sets}</div>
+    ${d.csp!=='sent'?`<div><div class="note" style="display:flex;justify-content:space-between"><span>CSP: ${cspSt}</span><span>${ck.done}/${ck.total} mục</span></div><div class="meter"><i style="width:${ck.pct}%"></i></div></div>`:''}
+    ${d.cause?`<div class="lesson"><b>Nguyên nhân:</b> ${esc(d.cause)}</div>`:''}
+    ${d.lesson?`<div class="lesson"><b>Rút kinh nghiệm:</b> ${esc(d.lesson)}</div>`:''}
+    <div class="foot">${risk}${d.csp==='sent'?'<span class="chip green">CSP đã gửi</span>':''}${c.chs!=null?`<span class="chip ${c.chs>=50?'green':'red'}">CHS ~${Math.round(c.chs)}</span>`:''}
+      <span style="flex:1"></span>
+      <button class="btn sm" data-csp="${d.id}">📄 CSP.xlsx</button>
+      <button class="btn sm pri" data-open="${d.id}">Mở</button></div>
+  </div>`;
+}
+
+/* ---------- Active tab ---------- */
+function normSet(t){
+  t=t.toLowerCase();
+  if(/work|wework|request|service|workflow/.test(t))return 'Work Ops';
+  if(/people|hrm|hr\b|payroll|checkin/.test(t))return 'People Ops';
+  if(/business|crm|sales/.test(t))return 'Business Ops';
+  if(/finance|income|expense/.test(t))return 'Finance Ops';
+  return null;
+}
+let PARSED=[];
+function parsePaste(txt,date){
+  const rows=[];
+  for(const line of txt.split(/\r?\n/)){
+    if(!line.trim())continue;
+    const m=line.match(/\b(\d{1,2}[.,]?\d{3,4})\b/);
+    const pm=[...line.matchAll(/(\d+(?:[.,]\d+)?)\s*%/g)].pop();
+    if(!m||!pm){rows.push({line,err:'Không đọc được System ID hoặc %'});continue}
+    const sys=m[1].replace(/[.,]/g,'');
+    const p=parseFloat(pm[1].replace(',','.'));
+    const d=DB.deals.find(x=>String(x.sys).replace(/[.,]/g,'')===sys);
+    if(!d){rows.push({line,sys,p,err:'Không có deal mã '+sys});continue}
+    const sn=normSet(line);
+    let si=sn?d.sets.findIndex(s=>s.name===sn):(d.sets.length===1?0:-1);
+    if(si<0){rows.push({line,sys,p,d,err:'Deal có nhiều bộ — ghi rõ tên bộ (Work Ops / People Ops…)'});continue}
+    rows.push({line,sys,p,d,si,date});
+  }
+  return rows;
+}
+function renderActive(){
+  const el=$('#p-active');
+  const keep=$('#paste')?$('#paste').value:'';
+  const dt=$('#pdate')?$('#pdate').value:iso(TODAY);
+  el.innerHTML=`<h2 class="ph">Nhập Active từ Power BI</h2><p class="ps">Mỗi tuần (hoặc khi có số mới): copy bảng Power BI → dán vào đây → Xem trước → Áp dụng.</p><div class="two">
+   <div class="box"><h3>Dán số Active</h3>
+    <p class="note">Mỗi dòng cần có System ID và %. Ví dụ: <code>12061 Work Ops 10.9%</code>. Copy nguyên hàng từ bảng Power BI cũng được.</p>
+    <div class="f" style="margin-bottom:8px"><label class="fl">Ngày lấy số<input class="in" type="date" id="pdate" value="${dt}"></label></div>
+    <textarea class="in" id="paste" style="min-height:150px" placeholder="12061&#9;Work Ops&#9;10.9%&#10;12104&#9;Work Ops&#9;11.2%">${esc(keep)}</textarea>
+    <div style="margin-top:8px;display:flex;gap:8px"><button class="btn" id="bParse">Xem trước</button><button class="btn pri" id="bApply">Áp dụng</button></div>
+    <div id="prev" style="margin-top:12px"></div>
+   </div>
+   <div class="box"><h3>Số mới nhất theo deal</h3>
+    <table class="t"><tr><th>System ID</th><th>Bộ</th><th>Active</th><th>Cập nhật</th></tr>
+    ${DB.deals.flatMap(d=>d.sets.map(s=>{const l=lastLog(s);const age=l?diff(TODAY,pd(l.d)):null;
+      return `<tr><td>${esc(d.sys)}</td><td>${esc(s.name)}</td><td>${l?l.p+'%':'—'}</td><td>${l?`<span class="chip ${age>14?'red':'green'}">${fmtS(pd(l.d))}${age>14?' · cũ':''}</span>`:'—'}</td></tr>`})).join('')}
+    </table></div></div>`;
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.id==='bParse'||t.id==='bApply'){
+    PARSED=parsePaste($('#paste').value,$('#pdate').value);
+    if(t.id==='bParse'){
+      $('#prev').innerHTML=PARSED.length?`<table class="t"><tr><th>Dòng</th><th>Kết quả</th></tr>${PARSED.map(r=>`<tr><td>${esc(r.line.slice(0,48))}</td><td>${r.err?`<span class="chip red">${esc(r.err)}</span>`:`<span class="chip green">${esc(r.d.sys)} · ${esc(r.d.sets[r.si].name)} → ${r.p}%</span>`}</td></tr>`).join('')}</table>`:'<span class="note">Chưa có dữ liệu.</span>';
+    }else{
+      const ok=PARSED.filter(r=>!r.err);
+      ok.forEach(r=>{const s=r.d.sets[r.si];s.log=(s.log||[]).filter(l=>l.d!==r.date);s.log.push({d:r.date,p:r.p})});
+      save();render();toast(`Đã cập nhật ${ok.length} số Active`+(PARSED.length-ok.length?`, bỏ qua ${PARSED.length-ok.length} dòng lỗi`:''));
+    }
+  }
+});
+
+/* ---------- Guide ---------- */
+function renderGuide(){
+  const S=(n,when,title,body,tool,btns='')=>`<div class="step"><div class="no">${n}</div><div><div class="when">${when}</div><h3>${title}</h3>${body}${tool?`<div class="tool">🧭 <b>Công cụ giúp:</b> ${tool}</div>`:''}${btns?`<div class="btns">${btns}</div>`:''}</div></div>`;
+  $('#p-guide').innerHTML=`<h2 class="ph">Làm gì, theo thứ tự nào?</h2><p class="ps">Từ lúc nhận deal tới sau go-live. Làm đúng thứ tự này là công cụ sẽ nhắc bạn đúng lúc.</p><div class="steps">
+  ${S(1,'Ngày 0 · vừa nhận deal','Đăng ký deal vào công cụ',
+   `<ul><li>Bấm <b>＋ Nhận deal mới</b>.</li><li>Nhập <b>System ID</b>, tên KH, <b>ngày nhận deal</b>.</li><li>Thêm từng bộ giải pháp (Work Ops, People Ops…) với <b>giá trị (triệu)</b> và <b>số user</b>.</li><li>Tick "Có Non-Software" nếu hợp đồng có hạng mục này.</li></ul>`,
+   'tự tính phân khúc SA/MA/KA, <b>hạn CSP</b> (nhận deal + 14 ngày), <b>hạn go-live</b> và mốc 200%.',
+   '<button class="btn sm pri" data-act="new">Nhận deal mới</button>')}
+  ${S(2,'Ngày 1–3','Hỏi mục tiêu & đặt lịch khảo sát',
+   `<ul><li>Ngay buổi đầu: chốt <b>KH sẽ nhận được giá trị gì</b> (mục tiêu Y1) — bài học từ deal Kim Quang.</li><li>Đặt lịch khảo sát với PIC phía KH. <b>CSP chỉ viết được sau khi khảo sát xong.</b></li><li>Khảo sát xong: đổi trạng thái CSP sang <b>"Đã khảo sát KH"</b>.</li></ul>`,
+   'mục "Hôm nay" sẽ báo đỏ CSP khi còn ≤3 ngày mà nội dung chưa đủ.')}
+  ${S(3,'Trước ngày 14','Viết CSP (dán từ Excel)',
+   `<ul><li>Điền file CSP Excel như bình thường (hoặc dùng bản đang làm).</li><li>Mở deal → tab <b>CSP</b> → dán toàn bộ nội dung đã copy từ Excel → <b>Phân tích</b> → <b>Áp dụng</b>.</li><li>Công cụ kiểm tra 6 mục: bối cảnh · mục tiêu · ban dự án · lộ trình chặng · danh mục số hóa · kế hoạch làm việc. Mục nào thiếu sẽ hiện ngay và báo ở "Hôm nay".</li><li>Đủ 6/6: bấm <b>Xuất CSP.xlsx</b>, trao đổi với BC, rồi gửi KH.</li><li>KH duyệt: đổi trạng thái thành <b>"Đã duyệt & gửi KH"</b> → hết nhắc.</li></ul>`,
+   'đếm tiến độ CSP (x/6) trên thẻ deal, xuất lại file đúng định dạng template của bạn bất cứ lúc nào (ví dụ sau mỗi buổi làm việc).')}
+  ${S(4,'Trong triển khai','Theo dõi hạn go-live, xin gia hạn sớm',
+   `<ul><li>Cứ ~50% thời gian: user chính được đào tạo xong và có <b>job thật đầu tiên</b> trên hệ thống.</li><li>Còn ≤14 ngày mà KH chưa sẵn sàng: <b>tạo đề xuất gia hạn trên hệ thống TRƯỚC hạn</b>. Khi được duyệt, nhập số ngày vào ô "Gia hạn đã duyệt".</li><li>Tổng gia hạn tối đa bằng định mức gốc; quá 200% là doanh thu rơi vào CR1.</li></ul>`,
+   'đếm ngược từng deal, cho biết còn bao nhiêu ngày được gia hạn.')}
+  ${S(5,'Ngày go-live','Nhập go-live & Output',
+   `<ul><li>Nhập <b>ngày go-live thực tế</b> cho từng bộ giải pháp.</li><li>Nhập <b>% Output hoàn thành</b> (theo mục tiêu trong CSP). Cần có xác nhận của KH (email/tin nhắn) để lead đối soát.</li><li>Mẹo ngày 10: go-live <b>trước hoặc ngày 10</b> thì bị đo Active ngay trong tháng; <b>sau ngày 10</b> thì đo từ tháng sau — có thời gian làm nóng user.</li></ul>`,
+   'hiện kỳ đo Active bắt đầu khi nào, và Active tối thiểu để CHS_CS ≥ 50.')}
+  ${S(6,'Hằng tuần','Cập nhật Active từ Power BI',
+   `<ul><li>Mở Power BI → copy bảng Active theo System ID.</li><li>Tab <b>Nhập Active</b> → dán → Xem trước → Áp dụng.</li><li>Deal nào CHS_CS &lt; 50 sẽ lên đầu "Hôm nay" kèm gợi ý Active cần đạt.</li></ul>`,
+   'so với ngưỡng Tier, báo deal nào đang dưới 50.',
+   '<button class="btn sm" data-goto="active">Mở tab Nhập Active</button>')}
+  ${S(7,'Sau go-live','Các mốc đánh giá',
+   `<ul><li><b>+1 tháng (SRR_1)</b> và <b>+4 tháng (SRR_4)</b>: CHS_CS phải ≥ 50 để tính go-live thành công và hưởng commission.</li><li><b>Tháng 6–10</b>: giai đoạn The Gap — đặt QBR, đề xuất use-case Y2.</li><li>QBR hằng quý (MA/KA); tái ký T(1)−60 ngày.</li></ul>`,
+   'nhắc trước các mốc SRR_1, SRR_4 và The Gap.')}
+  </div>`;
+}
+
+/* ---------- Glossary ---------- */
+const GL=[
+['Vai trò & phòng ban',null],
+['CS','Customer Success','Bộ phận triển khai & đồng hành khách hàng; bạn đang ở đây.'],
+['CS_PM','CS Project Manager','Người quản lý dự án của 1 khách: thiết kế lộ trình, điều phối CSP, chịu trách nhiệm kết quả.'],
+['CS_A','CS Associate','Hỗ trợ CS_PM thực hiện các hạng mục chi tiết. Level CSA 1–2.'],
+['PIC','Person In Charge','Đầu mối phụ trách (PIC Base hoặc PIC phía khách).'],
+['BC / Sales','Business Consultant','Phụ trách quan hệ thương mại: đàm phán, tái ký, mở rộng doanh thu.'],
+['AM','Account Manager','Chịu KPI doanh thu của tệp khách (thường với Key Account).'],
+['SoE','Solution Engineer','Tư vấn giải pháp pre-sales, thiết kế hệ thống, lập kế hoạch dự án.'],
+['SS','Solution Support','Hỗ trợ kỹ thuật & vận hành hằng ngày; giữ khách SA.'],
+['POD','Cross-functional team','Nhóm liên phòng ban (BC, CS, SoE) cùng chăm một khách.'],
+['CD','—','Bộ phận phát sinh phụ lục; chuyển phụ lục cho CS nếu chọn "Cần triển khai thêm".'],
+['Phân khúc khách',null],
+['SA','Small Account','ARR < 20 triệu, <15 user. Self-service + Solution Support.'],
+['MA','Mid Account','ARR 20–200 triệu. CSP + QBR bắt buộc; CS_PM sở hữu CSP.'],
+['KA','Key Account','ARR ≥ 200 triệu, >300 user. Giữ chân thương hiệu 100%.'],
+['Account Stage','—','Mức thân thiết: Mới → Thân thiết → Lâu năm → VIP → Đối tác chiến lược.'],
+['Kế hoạch & triển khai',null],
+['CSP','Customer Success Plan','Lộ trình do CS chủ động lập & cập nhật, dẫn KH từ First Value tới Full Value. Phải xong trong 14 ngày sau nhận deal.'],
+['KYC','Know Your Customer','Hồ sơ thông tin khách hàng (hồ sơ công ty, stakeholder, mục tiêu, quy trình, phần mềm đang dùng).'],
+['TTGL','Time To Go-Live','Số ngày quy định từ nhận dự án tới khi user cuối dùng thật. Tra theo giá trị HĐ + số bộ.'],
+['Go-live','—','Thời điểm hệ thống chính thức được người dùng cuối sử dụng thực tế.'],
+['MVP','Minimum Viable Product','Bản quy trình tối thiểu thiết lập để KH kiểm thử trước khi go-live.'],
+['Chặng','—','Giai đoạn triển khai trong CSP (Chặng 1, 2…), mỗi chặng có nhiều buổi làm việc.'],
+['Output','—','Giá trị đầu ra đã cam kết trong CSP. % hoàn thành quyết định điểm O trong CHS.'],
+['Y1 / Y(x)','—','Giá trị mục tiêu KH muốn đạt ở năm thứ x kể từ lúc dùng.'],
+['T(0) / T(1)','—','T(0): lúc ký/bắt đầu dùng. T(1): hết hạn hợp đồng đầu tiên. Tái ký: T(1)−60 ngày (MA), −90 (KA).'],
+['First Value / Full Value','—','Giá trị đầu tiên ngay sau onboarding / khai thác trọn vẹn hệ sinh thái.'],
+['The Gap','—','Giai đoạn rủi ro tháng 6–10 sau go-live: dễ chững lại, dễ churn.'],
+['Non-Software','—','Gói dịch vụ triển khai chuyên sâu có trả phí. Cộng 15 ngày TTGL.'],
+['QBR / IBR','Quarterly / Impact Business Review','QBR: họp đánh giá mỗi quý với đội vận hành. IBR: họp chiến lược cấp cao (6 tháng KA, 1 năm MA).'],
+['Chỉ số',null],
+['Active Rate','—','Số người thực sự đăng nhập ÷ số người được phân quyền, trong chu kỳ đo. Lấy từ Power BI.'],
+['CHS','Customer Health Score','Điểm sức khỏe KH (0–100): At Risk 0–20 · Weak 21–50 · Healthy 51–70 · Strong 71–100.'],
+['CHS_CS','—','Điểm dành cho CS = 70%·U + 30%·O. ≥ 50 mới là "thành công".'],
+['UPTO','Usage · People · Touchpoint · Outcome','Mô hình CHS toàn công ty: 50%U + 20%P + 10%T + 20%O.'],
+['U / P / T / O','—','Usage (sử dụng) · People (gắn kết nhân sự) · Touchpoint (điểm chạm) · Outcome/Output (kết quả).'],
+['Tier 1–4','—','Nhóm quy đổi Active → điểm: Daily Core, Routine, On-Demand, Output Driven.'],
+['CR','Go-live Revenue Conversion Rate','Doanh thu go-live trong kỳ ÷ doanh thu phải go-live trong kỳ.'],
+['CR1','—','Chỉ số nơi dồn doanh thu bộ giải pháp quá 200% định mức mà chưa go-live (kỳ kế tiếp).'],
+['SRR_1 / SRR_4','Success Retention Rate','Tỷ lệ doanh thu go-live có CHS_CS ≥ 50 sau 1 / 4 tháng.'],
+['ARR','Annual Recurring Revenue','Doanh thu định kỳ quy năm.'],
+['ACR','Annual Contract Revenue','Giá trị HĐ phần mềm quy theo năm — cơ sở tính commission.'],
+['NRR · CRR','—','NRR: duy trì doanh thu thuần. CRR: tỷ lệ gia hạn thực tế.'],
+['Churn','—','Khách ngừng dùng (không gia hạn / hủy).'],
+['Sản phẩm',null],
+['Work Ops','—','Bộ Wework, Request, Workflow, Service (+ Meeting, Booking…). Tier 1/3 tuỳ số user.'],
+['People Ops','—','Bộ HRM, Onboard, Me, Check-in, Schedule, Timeoff, Payroll…'],
+['Business Ops','—','Bộ Base CRM (Sales, Leads…).'],
+['Finance Ops','—','Finance, Income, Expense, Bankfeeds: chỉ tính theo Output.'],
+['Wework / Workflow / Service','—','Giao việc / quy trình tự động hóa / xử lý yêu cầu liên phòng ban.'],
+['Base Academy','—','Kho học liệu trực tuyến cho KH tự học.'],
+['Platform','—','Nhóm app nền tảng đi kèm (XSpace, Drive, Process, Sign, Table, ID); tính chung vào bộ giải pháp.'],
+['Khác',null],
+['SLA','Service Level Agreement','Cam kết thời gian phản hồi/xử lý.'],
+['HT / TN / QT','—','Trong CSP của sếp: Hoàn thiện / Thử nghiệm / Quy trình.'],
+['Under KPI','—','Không đạt mốc KPI → commission hỗ trợ 1% ACR go-live thành công.'],
+];
+function renderGlossary(){
+  const q=($('#gq')?$('#gq').value:'').toLowerCase();
+  let h=`<h2 class="ph">Từ điển viết tắt</h2><p class="ps">Gõ để lọc.</p><input class="in" id="gq" placeholder="Tìm: CHS, TTGL, MA, Tier…" value="${esc(q)}" style="max-width:360px;margin-bottom:14px"><div class="gl" id="gl">`;
+  let cat='',buf='';
+  for(const r of GL){
+    if(r[1]===null){ if(buf)h+=`<div class="gcat">${esc(cat)}</div>${buf}`;cat=r[0];buf='';continue}
+    if(q&&!(r.join(' ').toLowerCase().includes(q)))continue;
+    buf+=`<div class="gi"><b>${esc(r[0])}</b>${r[1]!=='—'?` <span class="full">${esc(r[1])}</span>`:''}<p>${esc(r[2])}</p></div>`;
+  }
+  if(buf)h+=`<div class="gcat">${esc(cat)}</div>${buf}`;
+  $('#p-glossary').innerHTML=h+'</div>';
+  const el=$('#gq');if(el&&q){el.focus();el.setSelectionRange(q.length,q.length)}
+}
+document.addEventListener('input',e=>{if(e.target.id==='gq')renderGlossary()});
+
+/* ---------- Policy tab ---------- */
+function renderPolicy(){
+  $('#p-policy').innerHTML=`<h2 class="ph">Cheat-sheet chính sách</h2><p class="ps">Tóm tắt Policy Ver.01 (hiệu lực 01/07/2026).</p><div class="pol">
+  <div class="box"><h3>⏱ Hạn go-live (TTGL)</h3><ul>
+   <li>SA ≤20tr: 21 ngày</li><li>MA ≤60tr: 30 (+15/bộ thêm) · ≤100tr: 35 (+15) · ≤200tr: 45 (+20)</li>
+   <li>KA ≤500tr: 60 (+30) · &gt;500tr: 75 (+30)</li><li>Có Non-Software: +15 ngày</li>
+   <li>Gia hạn: đề xuất trên hệ thống, tổng gia hạn ≤ định mức gốc</li>
+   <li>Quá 200% định mức mà chưa live → doanh thu vào CR1 kỳ sau</li></ul></div>
+  <div class="box"><h3>📅 Quy tắc ngày 10</h3><ul>
+   <li>Go-live trước hoặc <b>ngày 10</b>: đo Active từ ngày go-live tới cuối tháng</li>
+   <li>Go-live <b>sau ngày 10</b>: không đo tháng đó, đo trọn tháng kế tiếp</li>
+   <li>Mẹo: bộ yếu Active → go-live sau ngày 10 để có thời gian làm nóng. Nhưng đừng để lố hạn go-live (ảnh hưởng CR).</li></ul></div>
+  <div class="box"><h3>❤️ CHS_CS (≥ 50 mới "thành công")</h3><ul>
+   <li>CHS_CS = 70%·U + 30%·O</li><li>Tier 1 (Work Ops 16–200 user): &gt;60%→100 · &gt;30%→60 · &gt;10%→40</li>
+   <li>Tier 2 (People Ops…): &gt;50→100 · &gt;30→80 · &gt;10→50</li><li>Tier 3 (On-Demand): &gt;30→100 · &gt;15→80 · &gt;5→40</li>
+   <li>Tier 4 (Finance/Hiring/App lẻ): chỉ tính Output</li>
+   <li>Nhiều bộ: lấy trung bình</li><li><b>Output cao giúp hạ ngưỡng Active cần đạt</b></li></ul></div>
+  <div class="box"><h3>📝 Việc phải làm theo giai đoạn</h3><ul>
+   <li>≤14 ngày sau nhận deal: CSP Y1 (MA/KA), thống nhất với BC rồi gửi KH</li>
+   <li>Khảo sát xong mới viết được CSP → đặt lịch khảo sát đầu tiên</li>
+   <li>Go-live +1 tháng: SRR_1 · +4 tháng: SRR_4</li>
+   <li>Tháng 6–10 sau go-live: "The Gap"</li><li>QBR hàng quý (MA/KA)</li><li>Tái ký: T(1)−60 ngày (MA) / −90 (KA)</li></ul></div>
+  <div class="box"><h3>🚀 30 ngày đầu (khách nhỏ)</h3><ul>
+   <li>24h: lập nhóm Zalo, gửi quy trình mẫu</li><li>+72h: chốt mục tiêu Y1 & quy trình</li>
+   <li>Tuần 1: đào tạo, KPI Time-to-first-job; 7 ngày không có job = báo động</li>
+   <li>Nhắc user mỗi ngày, nhắc lại lý do mua</li></ul></div>
+  </div>`;
+}
+
+/* ============ CSP paste parser (dán từ Excel / Google Sheets) ============ */
+function parseTSV(t){
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){
+    const ch=t[i];
+    if(q){ if(ch==='"'){ if(t[i+1]==='"'){f+='"';i++} else q=false } else f+=ch }
+    else if(ch==='"'&&f===''){q=true}
+    else if(ch==='\t'){row.push(f);f=''}
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&t[i+1]==='\n')i++; row.push(f);rows.push(row);row=[];f='' }
+    else f+=ch;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows;
+}
+function parseCSP(text){
+  const rows=parseTSV(text).map(r=>r.map(c=>c.trim()));
+  const out={ctx:'',goals:[],team:[],phases:[],catalog:[],sessions:[],barPhases:{},meta:{}};
+  let mode='',curPh=0,wantCtx=false;
+  const cell=(r,i)=>real(r[i]||'');
+  for(const r of rows){
+    const first=r.find(x=>x)||'';
+    if(!first)continue;
+    const a=r[0]||'';
+    let m;
+    if(/^CUSTOMER SUCCESS PLAN/i.test(first)){mode='';continue}
+    if((m=first.match(/^Khách hàng:\s*(.*?)\s*\|\s*(?:Người phụ trách[^:]*|PIC Base)\s*:\s*(.*?)\s*\|\s*(?:Ngày[^:]*)\s*:\s*(.*)$/i))){out.meta={customer:m[1],pic:m[2],date:m[3]};continue}
+    if(/^PHẦN 1/i.test(first)){mode='p1';continue}
+    if(/^PHẦN 2/i.test(first)){mode='catalog';continue}
+    if(/^PHẦN 3/i.test(first)){mode='sessions';continue}
+    if(/^0\.\s*Bối cảnh/i.test(first)){mode='ctx';wantCtx=true;continue}
+    if(/^1\.\s*Mục tiêu/i.test(first)){mode='goals';continue}
+    if(/^3\.\s*Ban dự án/i.test(first)){mode='team';continue}
+    if(/^2\.\s*Lộ trình/i.test(first)){mode='roadmap';continue}
+    if((m=first.match(/CHẶNG\s*(\d+)\s*[:：]\s*(.*?)\s*[—–-]+\s*Thời gian[^:]*:\s*(.*)$/i))){
+      curPh=(+m[1]||1)-1;out.barPhases[curPh]={name:real(m[2]),time:real(m[3])};mode='sessions';continue}
+    if(/^(STT|Chặng|Trạng thái)$/i.test(a)&&/^(STT|Chặng|Trạng thái)$/i.test(first))continue;
+    if(mode!=='ctx'&&r.some(c=>/^\[Ví dụ\]/i.test(c)))continue; // bỏ nguyên dòng ví dụ của template
+    if(mode==='ctx'&&wantCtx){const v=real(first);if(v)out.ctx=v;wantCtx=false;continue}
+    if(mode==='goals'&&/^\d+$/.test(a)){const t=cell(r,1),k=cell(r,6);if(t||k)out.goals.push({t,k});continue}
+    if(mode==='team'&&/^\d+$/.test(a)){const x={side:cell(r,1),role:cell(r,2),name:cell(r,4),unit:cell(r,6),duty:cell(r,8)};if(x.name||x.role)out.team.push(x);continue}
+    if(mode==='roadmap'&&/^\d+$/.test(a)){const x={name:cell(r,1),time:cell(r,5),goal:cell(r,7)};if(x.name||x.time)out.phases.push(x);continue}
+    if(mode==='catalog'&&/^\d+$/.test(a)){const x={dept:cell(r,1),problem:cell(r,2),items:cell(r,4),prio:cell(r,6),pic:cell(r,7),app:cell(r,8),status:cell(r,9),note:cell(r,10)};if(x.dept||x.items)out.catalog.push(x);continue}
+    if(mode==='sessions'&&/(buổi|bổ sung)/i.test(r[1]||'')){
+      const x={status:cell(r,0),session:r[1],date:cell(r,2),time:cell(r,3),form:cell(r,4),who:cell(r,5),content:cell(r,7),out:cell(r,9),ph:curPh};
+      if(x.date||x.who||x.content||x.out||real(x.status))out.sessions.push(x);continue}
+  }
+  if(!out.phases.length)Object.keys(out.barPhases).sort((x,y)=>x-y).forEach(i=>out.phases[i]=out.barPhases[i]);
+  out.phases=out.phases.filter(Boolean).map(p=>({name:p.name||'',time:p.time||'',goal:p.goal||''}));
+  return out;
+}
+
+/* ============ modal (deal editor) ============ */
+let W=null;
+function openDeal(id,tab){
+  W=id?JSON.parse(JSON.stringify(DB.deals.find(d=>d.id===id))):mkDeal({start:iso(TODAY)});
+  W._new=!id;W._tab=tab||'info';W._paste='';W._pp=null;
+  $('#ov').classList.add('on');drawModal();
+}
+function closeModal(){$('#ov').classList.remove('on');W=null}
+function setPath(o,p,v){const k=p.split('.');let t=o;for(let i=0;i<k.length-1;i++)t=t[k[i]];t[k[k.length-1]]=v}
+function fld(label,path,val,type='text',extra=''){return `<label class="fl">${label}<input class="in" type="${type}" data-p="${path}" ${type==='number'?'data-t="n" step="any"':''} value="${esc(val)}" ${extra}></label>`}
+function drawModal(){
+  const c=calc(W);
+  const sc=$('#modal').scrollTop;
+  const ck=cspCheck(W);
+  $('#modal').innerHTML=`
+  <header><h2>${W._new?'Nhận deal mới':esc(W.name||'Deal')}</h2><button class="hx" data-x="close">✕</button></header>
+  <div class="mtabs"><button class="mt ${W._tab==='info'?'on':''}" data-x="tab" data-v="info">Thông tin & go-live</button><button class="mt ${W._tab==='csp'?'on':''}" data-x="tab" data-v="csp">CSP (${ck.done}/${ck.total})</button></div>
+  <div class="mbody">${W._tab==='info'?infoTab(c):cspTab(ck)}</div>
+  <div class="mfoot">
+    <button class="btn pri" data-x="save">💾 Lưu</button>
+    <button class="btn org" data-x="csp">📄 Xuất CSP.xlsx</button>
+    <span style="flex:1"></span>
+    ${W._new?'':'<button class="btn danger" data-x="del">Xóa deal</button>'}
+  </div>`;
+  $('#modal').scrollTop=sc;
+}
+function infoTab(c){return `
+   <div class="sec"><h4>Thông tin deal</h4><div class="f">
+     ${fld('System ID','sys',W.sys)}${fld('Tên khách hàng','name',W.name)}${fld('Mã hợp đồng','contract',W.contract)}
+     ${fld('Ngày nhận deal / bắt đầu','start',W.start,'date')}
+     ${fld('Gia hạn đã duyệt (ngày)','ext',W.ext,'number','min="0"')}
+     <label class="fl">Trạng thái CSP<select class="in" data-p="csp">${CSP_ST.map(([k,l])=>`<option value="${k}" ${W.csp===k?'selected':''}>${l}</option>`).join('')}</select></label>
+     <label class="fl" style="flex-direction:row;align-items:center;gap:8px;align-self:end;padding-bottom:9px"><input type="checkbox" data-p="nonSoft" ${W.nonSoft?'checked':''}> Có Non-Software (+15 ngày)</label>
+   </div></div>
+   <div class="pv" id="pv">${pvHtml(c)}</div>
+   <div class="sec"><h4>Bộ giải pháp</h4><div style="display:grid;gap:10px">
+    ${W.sets.map((s,i)=>setBox(s,i,c.sets[i])).join('')}
+    <div><button class="btn sm" data-x="addset">＋ Thêm bộ giải pháp</button></div></div></div>
+   <div class="sec"><h4>Nguyên nhân & rút kinh nghiệm</h4><div class="f">
+     <label class="fl">Nguyên nhân (Active thấp / chưa go-live)<textarea class="in" data-p="cause">${esc(W.cause)}</textarea></label>
+     <label class="fl">Rút kinh nghiệm<textarea class="in" data-p="lesson">${esc(W.lesson)}</textarea></label>
+     <label class="fl">Ghi chú<textarea class="in" data-p="notes">${esc(W.notes)}</textarea></label></div></div>`}
+function pvHtml(c){
+  const k=(a,b)=>`<div><div class="k">${a}</div><div class="v">${b}</div></div>`;
+  return k('Phân khúc',c.sg?`${c.sg.k} · ${c.total} triệu`:'— (thiếu giá trị)')+
+   k('TTGL định mức',c.base?c.base+' ngày':'—')+
+   k('Hạn CSP',c.start?fmt(addD(c.start,14)):'—')+
+   k('Hạn go-live',c.deadline?fmt(c.deadline):'—')+
+   k('Mốc 200%',c.limit?fmt(c.limit):'—')+
+   k('Gia hạn còn được',c.extMax!=null?(c.extMax-c.ext)+' ngày':'—');
+}
+function setBox(s,i,x){
+  const logs=[...(s.log||[])].map((l,j)=>({l,j})).sort((a,b)=>a.l.d<b.l.d?1:-1);
+  const nd=x.nd, tierTxt=`Tier ${x.t} · ${TIERNAME[x.t]}${num(s.users)?'':' (chưa nhập user → tạm tính 16–200)'}`;
+  const hint=x.live?(x.chs==null?'Chưa có số Active.':`CHS_CS ước tính <b>${Math.round(x.chs)}</b> ${x.chs>=50?'✅ đạt':'⚠ chưa đạt'}${x.t!==4&&nd!==null?(nd===false?' — cần tăng Output':` — cần Active &gt; ${nd.thr}%`):''}`):'';
+  return `<div class="setbox">
+   <div class="f">
+    <label class="fl">Bộ<select class="in" data-p="sets.${i}.name">${SETS.map(n=>`<option ${s.name===n?'selected':''}>${n}</option>`).join('')}</select></label>
+    ${fld('Ứng dụng','sets.'+i+'.apps',s.apps)}
+    ${fld('Giá trị (triệu)','sets.'+i+'.value',s.value,'number')}
+    ${fld('Số user','sets.'+i+'.users',s.users,'number')}
+    ${fld('Ngày go-live thực tế','sets.'+i+'.golive',s.golive,'date')}
+    ${fld('% Output hoàn thành','sets.'+i+'.output',s.output,'number','min="0" max="100"')}
+   </div>
+   <div class="note">${tierTxt}${x.ms?` · kỳ đo Active bắt đầu <b>${fmt(x.ms)}</b>`:''}</div>
+   ${hint?`<div class="note">${hint}</div>`:''}
+   <div class="logs"><span class="note"><b>Lịch sử Active:</b></span>
+    ${logs.map(({l,j})=>`<span class="chip">${fmtS(pd(l.d))}: ${l.p}%<button data-x="dellog" data-i="${i}" data-j="${j}" title="Xóa">×</button></span>`).join('')||'<span class="note">chưa có</span>'}
+    <input class="in" type="date" id="ld${i}" value="${iso(TODAY)}" style="width:150px">
+    <input class="in" type="number" step="any" id="lp${i}" placeholder="%" style="width:80px">
+    <button class="btn sm" data-x="addlog" data-i="${i}">＋</button>
+    ${W.sets.length>1?`<button class="btn sm danger" data-x="delset" data-i="${i}" style="margin-left:auto">Xóa bộ</button>`:''}</div>
+  </div>`;
+}
+
+/* ---- CSP tab ---- */
+function listEd(title,path,cols,addLabel){
+  const arr=getP(W,path);
+  return `<div class="sec"><h4>${title} <span class="cnt">(${arr.length})</span></h4><div style="display:grid;gap:8px">
+   ${arr.map((r,i)=>`<div class="rowc"><button class="btn sm danger x" data-x="delrow" data-l="${path}" data-i="${i}">Xóa</button><div class="f">${cols.map(c=>{
+     const p=`${path}.${i}.${c.k}`;
+     if(c.sel)return `<label class="fl">${c.l}<select class="in" data-p="${p}">${c.sel(r)}</select></label>`;
+     if(c.area)return `<label class="fl" style="grid-column:1/-1">${c.l}<textarea class="in" data-p="${p}">${esc(r[c.k])}</textarea></label>`;
+     return `<label class="fl">${c.l}<input class="in" data-p="${p}" value="${esc(r[c.k])}"></label>`}).join('')}</div></div>`).join('')}
+   <div><button class="btn sm" data-x="addrow" data-l="${path}">＋ ${addLabel}</button></div></div></div>`;
+}
+function cspTab(ck){
+  const c=W.cspd;
+  const phOpts=r=>(c.phases.length?c.phases:[{name:''}]).map((p,i)=>`<option value="${i}" ${(+r.ph||0)===i?'selected':''}>Chặng ${i+1}${p.name?': '+esc(p.name.slice(0,28)):''}</option>`).join('');
+  const stOpt=(arr)=>r=>arr.map(a=>`<option ${r.status===a?'selected':''}>${a}</option>`).join('');
+  const pp=W._pp;
+  return `
+  <div class="sec"><h4>Tiến độ nhập CSP</h4>
+    <div class="meter" style="margin-bottom:10px"><i style="width:${ck.pct}%"></i></div>
+    <div class="chk">${ck.items.map(i=>`<div class="${i.ok?'ok':'no'}"><span>${i.ok?'✅':'⬜'}</span><span>${i.k}${i.ok?'':` <span class="note">— ${esc(i.hint)}</span>`}</span></div>`).join('')}</div>
+  </div>
+  <div class="sec"><h4>Dán CSP từ Excel / Google Sheets</h4>
+    <p class="note">Bôi đen toàn bộ file CSP (Ctrl+A) → Ctrl+C → dán vào ô dưới. Dòng "[Ví dụ]" tự bị bỏ qua. Áp dụng sẽ <b>thay</b> các mục tìm thấy trong bản dán.</p>
+    <textarea class="in" id="csppaste" style="min-height:110px" placeholder="Dán nội dung CSP vào đây…">${esc(W._paste)}</textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-x="cspparse">Phân tích</button>${pp?`<button class="btn pri" data-x="cspapply">Áp dụng</button>`:''}</div>
+    ${pp?`<div class="note" style="margin-top:8px">Tìm thấy: <b>${pp.goals.length}</b> mục tiêu · <b>${pp.team.length}</b> thành viên ban dự án · <b>${pp.phases.length}</b> chặng · <b>${pp.catalog.length}</b> dòng danh mục số hóa · <b>${pp.sessions.length}</b> buổi làm việc${pp.ctx?' · có bối cảnh':''}${pp.meta&&pp.meta.customer?` · KH trong file: ${esc(pp.meta.customer)}`:''}</div>`:''}
+  </div>
+  <div class="sec"><h4>0. Bối cảnh & lý do triển khai</h4><textarea class="in" data-p="cspd.ctx">${esc(c.ctx)}</textarea></div>
+  ${listEd('1. Mục tiêu dự án','cspd.goals',[{k:'t',l:'Mục tiêu',area:1},{k:'k',l:'Kết quả kỳ vọng / Chỉ số đo lường',area:1}],'Thêm mục tiêu')}
+  ${listEd('3. Ban dự án hai bên','cspd.team',[{k:'side',l:'Bên (Khách hàng / Base)'},{k:'role',l:'Vai trò'},{k:'name',l:'Họ và tên'},{k:'unit',l:'Đơn vị / Phòng ban'},{k:'duty',l:'Trách nhiệm chính'}],'Thêm thành viên')}
+  ${listEd('2. Lộ trình tổng quan theo chặng','cspd.phases',[{k:'name',l:'Tên chặng / Trọng tâm'},{k:'time',l:'Thời gian dự kiến'},{k:'goal',l:'Mục tiêu / Kết quả kỳ vọng',area:1}],'Thêm chặng')}
+  ${listEd('Phần 2 · Danh mục số hóa','cspd.catalog',[{k:'dept',l:'Phòng ban / Bộ phận'},{k:'problem',l:'Bài toán / Khó khăn hiện tại'},{k:'items',l:'Danh mục nghiệp vụ / quy trình số hóa'},{k:'prio',l:'Mức độ ưu tiên'},{k:'pic',l:'Phụ trách (PIC Base)'},{k:'app',l:'Ứng dụng / Giải pháp Base'},{k:'status',l:'Trạng thái'},{k:'note',l:'Ghi chú'}],'Thêm dòng')}
+  ${listEd('Phần 3 · Kế hoạch làm việc (các buổi)','cspd.sessions',[{k:'ph',l:'Thuộc chặng',sel:r=>phOpts(r)},{k:'status',l:'Trạng thái',sel:stOpt(['Chưa tổ chức','Done'])},{k:'session',l:'Buổi (vd: Buổi 1)'},{k:'date',l:'Ngày'},{k:'time',l:'Thời gian'},{k:'form',l:'Hình thức'},{k:'who',l:'Thành phần tham dự'},{k:'content',l:'Nội dung triển khai',area:1},{k:'out',l:'Kết quả đầu ra',area:1}],'Thêm buổi làm việc')}`;
+}
+const NEWROW={'cspd.goals':{t:'',k:''},'cspd.team':{side:'',role:'',name:'',unit:'',duty:''},'cspd.phases':{name:'',time:'',goal:''},
+ 'cspd.catalog':{dept:'',problem:'',items:'',prio:'',pic:'',app:'',status:'',note:''},'cspd.sessions':{ph:0,status:'Chưa tổ chức',session:'',date:'',time:'',form:'',who:'',content:'',out:''}};
+
+$('#modal').addEventListener('input',e=>{
+  const el=e.target;
+  if(el.id==='csppaste'){W._paste=el.value;return}
+  const p=el.dataset.p;if(!p||!W)return;
+  let v=el.type==='checkbox'?el.checked:el.value;
+  if(el.dataset.t==='n')v=v===''?'':num(v);
+  if(el.tagName==='SELECT'&&/\.ph$/.test(p))v=+v;
+  setPath(W,p,v);
+  if(p==='start')W.startEst=false;
+  if((el.type!=='text'&&el.type!=='number'&&el.tagName!=='TEXTAREA')||el.tagName==='SELECT'){drawModal()}
+  else if($('#pv'))$('#pv').innerHTML=pvHtml(calc(W));
+});
+$('#modal').addEventListener('change',e=>{if(e.target.dataset.p&&W&&(e.target.dataset.p.startsWith('sets.')||e.target.dataset.p==='ext'))drawModal()});
+$('#modal').addEventListener('click',e=>{
+  const b=e.target.closest('[data-x]');if(!b||!W)return;
+  const x=b.dataset.x,i=+b.dataset.i,j=+b.dataset.j;
+  if(x==='close')closeModal();
+  else if(x==='tab'){W._tab=b.dataset.v;drawModal()}
+  else if(x==='addset'){W.sets.push(mkSet('People Ops'));drawModal()}
+  else if(x==='delset'){W.sets.splice(i,1);drawModal()}
+  else if(x==='dellog'){W.sets[i].log.splice(j,1);drawModal()}
+  else if(x==='addlog'){const d=$('#ld'+i).value,p=$('#lp'+i).value;if(!d||p===''){toast('Nhập ngày và %');return}
+    const s=W.sets[i];s.log=(s.log||[]).filter(l=>l.d!==d);s.log.push({d,p:num(p)});drawModal()}
+  else if(x==='addrow'){const l=b.dataset.l;getP(W,l).push(JSON.parse(JSON.stringify(NEWROW[l])));drawModal()}
+  else if(x==='delrow'){getP(W,b.dataset.l).splice(i,1);drawModal()}
+  else if(x==='cspparse'){W._paste=$('#csppaste').value;W._pp=parseCSP(W._paste);drawModal();if(!(W._pp.goals.length+W._pp.team.length+W._pp.phases.length+W._pp.catalog.length+W._pp.sessions.length||W._pp.ctx))toast('Không nhận ra nội dung CSP — nhớ copy cả tiêu đề các mục (PHẦN 1, PHẦN 2…)')}
+  else if(x==='cspapply'){const p=W._pp;if(!p)return;const c=W.cspd;
+    if(p.ctx)c.ctx=p.ctx;if(p.goals.length)c.goals=p.goals;if(p.team.length)c.team=p.team;if(p.phases.length)c.phases=p.phases;
+    if(p.catalog.length)c.catalog=p.catalog;if(p.sessions.length)c.sessions=p.sessions;
+    if(!W.name&&p.meta&&p.meta.customer)W.name=p.meta.customer;
+    W._pp=null;W._paste='';drawModal();toast('Đã áp dụng vào CSP — nhớ bấm Lưu')}
+  else if(x==='save'){
+    if(!W.sys&&!W.name){toast('Nhập ít nhất System ID hoặc tên khách');return}
+    const n=W._new;['_new','_tab','_paste','_pp'].forEach(k=>delete W[k]);
+    if(n)DB.deals.unshift(W);else DB.deals[DB.deals.findIndex(d=>d.id===W.id)]=W;
+    save();closeModal();render();toast('Đã lưu')}
+  else if(x==='del'){if(confirm('Xóa deal này?')){DB.deals=DB.deals.filter(d=>d.id!==W.id);save();closeModal();render()}}
+  else if(x==='csp')exportCSP(W);
+});
+$('#ov').addEventListener('mousedown',e=>{if(e.target.id==='ov')closeModal()});
+
+/* ============ top actions ============ */
+function goto(t){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.t===t));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));window.scrollTo({top:0,behavior:'smooth'})}
+document.addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]');if(o)openDeal(o.dataset.open);
+  const c=e.target.closest('[data-csp]');if(c)exportCSP(DB.deals.find(d=>d.id===c.dataset.csp));
+  const t=e.target.closest('.tab');if(t)goto(t.dataset.t);
+  const g=e.target.closest('[data-goto]');if(g)goto(g.dataset.goto);
+  const a=e.target.closest('[data-act]');if(a&&a.dataset.act==='new')openDeal(null);
+});
+$('#bNew').onclick=()=>openDeal(null);
+$('#bExport').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB,null,1)],{type:'application/json'}));a.download='golive-compass-backup-'+iso(TODAY)+'.json';a.click()};
+$('#bImport').onclick=()=>$('#fImport').click();
+$('#fImport').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!Array.isArray(j.deals))throw 0;DB=j;DB.deals.forEach(d=>{d.cspd=Object.assign(mkCsp(),d.cspd||{})});save();render();toast('Đã khôi phục')}catch(x){toast('File không hợp lệ')}};r.readAsText(f)};
+
+/* ============ XLSX writer (không cần thư viện) ============ */
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zipBlob(files){
+  const enc=new TextEncoder(),parts=[],cen=[];let off=0,cl=0;
+  for(const f of files){
+    const nb=enc.encode(f.name),data=enc.encode(f.text),crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);
+    lh.setUint16(10,0,true);lh.setUint16(12,0x21,true);lh.setUint32(14,crc,true);lh.setUint32(18,data.length,true);lh.setUint32(22,data.length,true);
+    lh.setUint16(26,nb.length,true);lh.setUint16(28,0,true);
+    parts.push(lh,nb,data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);
+    ch.setUint16(12,0,true);ch.setUint16(14,0x21,true);ch.setUint32(16,crc,true);ch.setUint32(20,data.length,true);ch.setUint32(24,data.length,true);
+    ch.setUint16(28,nb.length,true);ch.setUint32(42,off,true);
+    cen.push(ch,nb);cl+=46+nb.length;off+=30+nb.length+data.length;
+  }
+  const e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cl,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cen,e],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+const xe=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');
+const colL=n=>String.fromCharCode(65+n);
+
+/* style ids lấy nguyên từ file CSP_Template.xlsx của bạn */
+const TPL_STYLES=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="12"><font><sz val="11.0"/><color rgb="FF000000"/><name val="Calibri"/></font><font><b/><sz val="16.0"/><color rgb="FFC00000"/><name val="Arial"/></font><font/><font><b/><i/><sz val="10.0"/><color rgb="FF1F4E78"/><name val="Arial"/></font><font><i/><sz val="9.0"/><color rgb="FF808080"/><name val="Arial"/></font><font><b/><sz val="12.0"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><b/><sz val="10.0"/><color rgb="FF1F4E78"/><name val="Arial"/></font><font><i/><sz val="10.0"/><color rgb="FF7F6000"/><name val="Arial"/></font><font><b/><sz val="10.0"/><color rgb="FF000000"/><name val="Arial"/></font><font><sz val="10.0"/><color rgb="FF000000"/><name val="Arial"/></font><font><sz val="11.0"/><color rgb="FF000000"/><name val="Calibri"/></font><font><b/><sz val="10.0"/><color rgb="FFFFFFFF"/><name val="Arial"/></font></fonts><fills count="8"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="lightGray"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFD9EAD3"/><bgColor rgb="FFD9EAD3"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF2CC"/><bgColor rgb="FFFFF2CC"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F4E78"/><bgColor rgb="FF1F4E78"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFD9D9D9"/><bgColor rgb="FFD9D9D9"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFED7D31"/><bgColor rgb="FFED7D31"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF548235"/><bgColor rgb="FF548235"/></patternFill></fill></fills><borders count="13"><border/><border><left style="thin"><color rgb="FFBFBFBF"/></left><top style="thin"><color rgb="FFBFBFBF"/></top></border><border><top style="thin"><color rgb="FFBFBFBF"/></top></border><border><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><right style="thin"><color rgb="FFBFBFBF"/></right><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><bottom style="thin"><color rgb="FFBFBFBF"/></bottom></border></borders><cellStyleXfs count="1"><xf borderId="0" fillId="0" fontId="0" numFmtId="0"/></cellStyleXfs><cellXfs count="33"><xf borderId="0" fillId="0" fontId="0" numFmtId="0" xfId="0"/><xf borderId="1" fillId="2" fontId="1" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center"/></xf><xf borderId="2" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="3" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="4" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="5" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="6" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="7" fillId="3" fontId="3" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center"/></xf><xf borderId="8" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="9" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="7" fillId="0" fontId="4" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="left" vertical="center"/></xf><xf borderId="7" fillId="4" fontId="5" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="0" fillId="0" fontId="6" numFmtId="0" xfId="0" applyAlignment="1" applyFont="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf><xf borderId="1" fillId="3" fontId="7" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf><xf borderId="10" fillId="5" fontId="8" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="5" fontId="8" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="10" fillId="3" fontId="7" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="3" fontId="7" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="left" vertical="top" wrapText="1"/></xf><xf borderId="10" fillId="0" fontId="9" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="0" fontId="10" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="left" vertical="top" wrapText="1"/></xf><xf borderId="0" fillId="0" fontId="6" numFmtId="0" xfId="0" applyAlignment="1" applyFont="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf><xf borderId="10" fillId="0" fontId="10" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="3" fontId="7" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="0" fontId="9" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="left" vertical="top" wrapText="1"/></xf><xf borderId="7" fillId="0" fontId="9" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="6" fontId="5" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="11" fillId="5" fontId="8" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="1" fillId="5" fontId="8" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="12" fillId="0" fontId="2" numFmtId="0" xfId="0" applyBorder="1" applyFont="1"/><xf borderId="10" fillId="3" fontId="7" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="left" vertical="top" wrapText="1"/></xf><xf borderId="10" fillId="0" fontId="10" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFont="1"><alignment horizontal="left" vertical="top" wrapText="1"/></xf><xf borderId="7" fillId="7" fontId="5" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf borderId="7" fillId="7" fontId="11" numFmtId="0" xfId="0" applyAlignment="1" applyBorder="1" applyFill="1" applyFont="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle xfId="0" name="Normal" builtinId="0"/></cellStyles></styleSheet>`;
+const CW=[7,20,18,18,18,18,16,18,18,15,18];
+
+function buildCspBook(d){
+  const cp=d.cspd,cells=new Map(),ht={},merges=[],need={};
+  const P=(r,c,v,s)=>cells.set(r+','+c,{v,s});
+  const lines=(txt,w)=>String(txt||'').split('\n').reduce((n,l)=>n+Math.max(1,Math.ceil(l.length/(w*1.05))),0);
+  const span=(r,c1,c2,v,s)=>{ // ô gộp ngang, viền theo template: đầu=s, giữa=8, cuối=9
+    P(r,c1,v,s);for(let k=c1+1;k<c2;k++)P(r,k,'',8);if(c2>c1){P(r,c2,'',9);merges.push(`${colL(c1)}${r}:${colL(c2)}${r}`)}
+    const w=CW.slice(c1,c2+1).reduce((a,b)=>a+b,0);need[r]=Math.max(need[r]||1,lines(v,w));
+  };
+  const one=(r,c,v,s)=>{P(r,c,v,s);need[r]=Math.max(need[r]||1,lines(v,CW[c]))};
+  const bar=(r,s,v)=>{ if(s===12||s===20){P(r,0,v,s);merges.push(`A${r}:K${r}`);need[r]=1} else span(r,0,10,v,s) };
+  let r=1;
+  const name=d.name||'[Tên khách hàng]';
+  // tiêu đề A1:K2
+  P(1,0,`CUSTOMER SUCCESS PLAN (CSP) – ${name.toUpperCase()}`,1);for(let k=1;k<10;k++)P(1,k,'',2);P(1,10,'',3);
+  P(2,0,'',4);for(let k=1;k<10;k++)P(2,k,'',5);P(2,10,'',6);merges.push('A1:K2');ht[1]=21.75;ht[2]=21.75;
+  bar(3,7,`Khách hàng: ${name}   |   Người phụ trách triển khai (PIC Base): ${DB.pic}   |   Ngày khởi tạo/cập nhật: ${fmt(TODAY)}`);ht[3]=20;
+  bar(4,10,`Xuất từ Go-live Compass ngày ${fmt(TODAY)}. Cập nhật CSP sau mỗi buổi làm việc / QBR hoặc khi bối cảnh khách hàng thay đổi.`);ht[4]=20;
+  bar(6,11,'PHẦN 1: MỤC TIÊU DỰ ÁN');
+  bar(7,12,'0. Bối cảnh & lý do triển khai');
+  // A8:K9
+  const ctx=real(cp.ctx);
+  P(8,0,ctx,19);for(let k=1;k<10;k++)P(8,k,'',2);P(8,10,'',3);P(9,0,'',4);for(let k=1;k<10;k++)P(9,k,'',5);P(9,10,'',6);merges.push('A8:K9');
+  const cl=lines(ctx,CW.reduce((a,b)=>a+b,0));ht[8]=Math.max(15.75,cl*14.5/2+2);ht[9]=ht[8];
+  bar(11,12,'1. Mục tiêu dự án');
+  r=12;
+  P(r,0,'STT',14);span(r,1,5,'Mục tiêu',15);span(r,6,10,'Kết quả kỳ vọng / Chỉ số đo lường',15);
+  const goals=cp.goals.filter(g=>real(g.t)||real(g.k));
+  for(let i=0;i<Math.max(4,goals.length);i++){r++;const g=goals[i]||{};one(r,0,String(i+1),18);span(r,1,5,real(g.t),19);span(r,6,10,real(g.k),19)}
+  r+=2;
+  bar(r,20,'3. Ban dự án hai bên (Ban tiên phong khách hàng & Đội triển khai Base)');r++;
+  P(r,0,'STT',14);P(r,1,'Bên',14);span(r,2,3,'Vai trò',15);span(r,4,5,'Họ và tên',15);span(r,6,7,'Đơn vị / Phòng ban',15);span(r,8,10,'Trách nhiệm chính',15);
+  const team=cp.team.filter(t=>real(t.name)||real(t.role));
+  for(let i=0;i<Math.max(6,team.length);i++){r++;const t=team[i]||{};one(r,0,String(i+1),18);one(r,1,real(t.side),21);span(r,2,3,real(t.role),19);span(r,4,5,real(t.name),19);span(r,6,7,real(t.unit),19);span(r,8,10,real(t.duty),19)}
+  r+=2;
+  bar(r,12,'2. Lộ trình tổng quan theo Chặng');r++;
+  P(r,0,'Chặng',14);span(r,1,4,'Tên chặng / Trọng tâm',15);span(r,5,6,'Thời gian dự kiến',15);span(r,7,10,'Mục tiêu / Kết quả kỳ vọng',15);
+  const phs=cp.phases.filter(p=>real(p.name)||real(p.time));
+  for(let i=0;i<Math.max(4,phs.length);i++){r++;const p=phs[i]||{};one(r,0,String(i+1),18);span(r,1,4,real(p.name),19);span(r,5,6,real(p.time),21);span(r,7,10,real(p.goal),19)}
+  r+=3;
+  bar(r,25,'PHẦN 2: DANH MỤC SỐ HÓA (BÓC TÁCH NGHIỆP VỤ)');r++;
+  // tiêu đề 2 dòng
+  const h1=r,h2=r+1;
+  [[0,26,28],[1,26,28],[6,26,28],[7,26,28],[8,26,28],[9,26,28],[10,26,28]].forEach(([c,a,b])=>{P(h1,c,'',a);P(h2,c,'',b);merges.push(`${colL(c)}${h1}:${colL(c)}${h2}`)});
+  P(h1,0,'STT',26);P(h1,1,'Phòng ban / Bộ phận',26);P(h1,6,'Mức độ ưu tiên',26);P(h1,7,'Phụ trách số hóa (PIC Base)',26);P(h1,8,'Ứng dụng / Giải pháp Base',26);P(h1,9,'Trạng thái',26);P(h1,10,'Ghi chú',26);
+  P(h1,2,'Bài toán / Khó khăn hiện tại',27);P(h1,3,'',3);P(h2,2,'',4);P(h2,3,'',6);merges.push(`C${h1}:D${h2}`);
+  P(h1,4,'Danh mục nghiệp vụ / quy trình đề xuất số hóa',27);P(h1,5,'',3);P(h2,4,'',4);P(h2,5,'',6);merges.push(`E${h1}:F${h2}`);
+  ht[h1]=18;ht[h2]=18;r=h2;
+  const cat=cp.catalog.filter(x=>real(x.dept)||real(x.items));
+  for(let i=0;i<Math.max(8,cat.length);i++){r++;const x=cat[i]||{};one(r,0,String(i+1),18);one(r,1,real(x.dept),30);span(r,2,3,real(x.problem),19);span(r,4,5,real(x.items),19);one(r,6,real(x.prio),21);one(r,7,real(x.pic),21);one(r,8,real(x.app),21);one(r,9,real(x.status),21);one(r,10,real(x.note),30)}
+  r+=3;
+  bar(r,31,'PHẦN 3: KẾ HOẠCH LÀM VIỆC (CHẶNG & BUỔI LÀM VIỆC)');
+  const nph=Math.max(phs.length,1,...cp.sessions.map(s=>(+s.ph||0)+1));
+  for(let i=0;i<nph;i++){
+    const p=phs[i]||{};
+    r++;bar(r,32,`🚩 CHẶNG ${i+1}: ${real(p.name)||'[Tên chặng]'} — Thời gian dự kiến: ${real(p.time)||'[dd/mm – dd/mm]'}`);need[r]=1;
+    r++;['Trạng thái','Buổi','Ngày','Thời gian','Hình thức'].forEach((t,c)=>P(r,c,t,14));span(r,5,6,'Thành phần tham dự',15);span(r,7,8,'Nội dung triển khai',15);span(r,9,10,'Kết quả đầu ra',15);
+    const ses=cp.sessions.filter(s=>(+s.ph||0)===i&&(real(s.session)||real(s.who)||real(s.content)));
+    for(let j=0;j<Math.max(3,ses.length);j++){r++;const s=ses[j]||{};
+      one(r,0,real(s.status),21);one(r,1,real(s.session),21);one(r,2,real(s.date),21);one(r,3,real(s.time),21);one(r,4,real(s.form),21);
+      span(r,5,6,real(s.who),19);span(r,7,8,real(s.content),19);span(r,9,10,real(s.out),19)}
+    r++;
+  }
+  const maxR=r;
+  let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>'+
+    CW.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols><sheetData>';
+  for(let rr=1;rr<=maxR;rr++){
+    const cs=[];for(let c=0;c<11;c++){const o=cells.get(rr+','+c);if(o)cs.push([c,o])}
+    if(!cs.length)continue;
+    const h=ht[rr]||(need[rr]>1?Math.max(15.75,need[rr]*14.5+3):15.75);
+    x+=`<row r="${rr}" ht="${h}" customHeight="1">`;
+    for(const [c,o] of cs){const ref=colL(c)+rr;
+      x+=o.v===''?`<c r="${ref}" s="${o.s}"/>`:`<c r="${ref}" s="${o.s}" t="inlineStr"><is><t xml:space="preserve">${xe(o.v)}</t></is></c>`}
+    x+='</row>';
+  }
+  x+=`</sheetData><mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells><pageMargins left="0.75" right="0.75" top="1" bottom="1" header="0" footer="0"/><pageSetup orientation="landscape"/></worksheet>`;
+  const files=[
+   {name:'[Content_Types].xml',text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`},
+   {name:'_rels/.rels',text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+   {name:'xl/workbook.xml',text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="CSP" sheetId="1" r:id="rId1"/></sheets></workbook>`},
+   {name:'xl/_rels/workbook.xml.rels',text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+   {name:'xl/styles.xml',text:TPL_STYLES},
+   {name:'xl/worksheets/sheet1.xml',text:x}
+  ];
+  return zipBlob(files);
+}
+function exportCSP(d){
+  if(!d)return;
+  const blob=buildCspBook(d);
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`CSP_${(d.name||'KH').replace(/[^\p{L}\p{N}]+/gu,'_').slice(0,40)}_${iso(TODAY)}.xlsx`;
+  document.body.appendChild(a);a.click();a.remove();
+  toast('Đã tạo file CSP theo template của bạn');
+}
+
+render();
+</script>
+</body>
+</html>
